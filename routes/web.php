@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\CreditController;
 use App\Http\Controllers\GenerationController;
+use App\Http\Controllers\MusicGenerationController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/profile', 'destroy')->name('profile.destroy');
         Route::get('/generations', [GenerationController::class, 'index'])->name('generations.index');
         Route::get('/credits', [CreditController::class, 'index'])->name('credits.index');
+        Route::post('/generate-music', [MusicGenerationController::class, 'generate'])->name('music.generate');
+        Route::get('/generations/{generation}/download', [MusicGenerationController::class, 'download'])->name('generations.download');
+        Route::get('/generations/{generation}/play', [MusicGenerationController::class, 'play'])->name('generations.play');
     });
 
     // Billing Routes
