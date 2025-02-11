@@ -31,13 +31,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/credits/add', 'addCredits')->name('credits.add');
     });
 
+    Route::get('/generations', [GenerationController::class, 'index'])->name('generations.index');
+
     // Generation Routes
     Route::controller(MusicGenerationController::class)->group(function () {
-        Route::get('/generations', 'index')->name('generations.index');
-        Route::post('/generate-music', 'generate')->name('music.generate');
-        Route::get('/generations/{generation}/download', 'download')->name('generations.download');
-        Route::get('/generations/{generation}/play', 'play')->name('generations.play');
-        Route::delete('/generations/{generation}', 'destroy')->name('generations.destroy');
+        Route::post('/generate-music', [MusicGenerationController::class, 'generate'])->name('music.generate');
+        Route::get('/generations/{generation}/download', [MusicGenerationController::class, 'download'])->name('generations.download');
+        Route::get('/generations/{generation}/play', [MusicGenerationController::class, 'play'])->name('generations.play');
+        Route::delete('/generations/{generation}', [MusicGenerationController::class, 'destroy'])->name('generations.destroy');
     });
 
     // Billing Routes

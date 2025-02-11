@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Generation;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class GenerationController extends Controller
