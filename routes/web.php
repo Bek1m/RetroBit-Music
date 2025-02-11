@@ -23,21 +23,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/profile/edit', 'edit')->name('profile.edit');
         Route::patch('/profile', 'update')->name('profile.update');
         Route::delete('/profile', 'destroy')->name('profile.destroy');
-        Route::get('/generations', [GenerationController::class, 'index'])->name('generations.index');
-        Route::get('/credits', [CreditController::class, 'index'])->name('credits.index');
-        Route::post('/generate-music', [MusicGenerationController::class, 'generate'])->name('music.generate');
-        Route::get('/generations/{generation}/download', [MusicGenerationController::class, 'download'])->name('generations.download');
-        Route::get('/generations/{generation}/play', [MusicGenerationController::class, 'play'])->name('generations.play');
-        Route::delete('/generations/{generation}', [MusicGenerationController::class, 'destroy'])->name('generations.destroy');
-        Route::get('/generations/{generation}/download', [MusicGenerationController::class, 'download'])->name('generations.download');
-        Route::get('/generations/{generation}/play', [MusicGenerationController::class, 'play'])->name('generations.play');
+    });
+
+    // Credit Routes
+    Route::controller(CreditController::class)->group(function () {
+        Route::get('/credits', 'index')->name('credits.index');
+        Route::post('/credits/add', 'addCredits')->name('credits.add');
+    });
+
+    // Generation Routes
+    Route::controller(MusicGenerationController::class)->group(function () {
+        Route::get('/generations', 'index')->name('generations.index');
+        Route::post('/generate-music', 'generate')->name('music.generate');
+        Route::get('/generations/{generation}/download', 'download')->name('generations.download');
+        Route::get('/generations/{generation}/play', 'play')->name('generations.play');
+        Route::delete('/generations/{generation}', 'destroy')->name('generations.destroy');
     });
 
     // Billing Routes
     Route::controller(BillingController::class)->group(function () {
         Route::get('/billing', 'index')->name('billing.index');
-        // Add any additional billing routes here
-        // Route::post('/billing/purchase', 'purchase')->name('billing.purchase');
     });
 });
 
