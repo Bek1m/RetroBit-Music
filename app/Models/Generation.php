@@ -11,13 +11,14 @@ class Generation extends Model
 
     protected $fillable = [
         'user_id',
-        'title',
         'style',
-        'duration',
         'happiness_level',
         'energy_level',
-        'status',
-        'file_path'
+        'velocity_min', 
+        'velocity_max', 
+        'tempo', 
+        'generation_length',
+        'output_name'
     ];
 
     public function user()

@@ -74,6 +74,12 @@
                     <div class="bg-white rounded-lg shadow-md p-6">
                         <h2 class="text-xl font-semibold text-gray-700 mb-6">Music Parameters</h2>
                         <div class="space-y-6">
+                            {{-- Output Name --}}
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Output Name</label>
+                                <input type="text" name="output_name" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="Enter output name" required>
+                            </div>
+
                             {{-- Happiness Level Slider --}}
                             <div class="space-y-2">
                                 <div class="flex justify-between">
@@ -118,6 +124,18 @@
                                        oninput="updateSliderValue('tempoValue', this.value, false)">
                             </div>
 
+                            {{-- Velocity Min and Max --}}
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-700">Velocity Min</label>
+                                    <input type="number" name="velocity_min" class="w-full border-gray-300 rounded-md shadow-sm" min="0" max="127" value="0" required>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-700">Velocity Max</label>
+                                    <input type="number" name="velocity_max" class="w-full border-gray-300 rounded-md shadow-sm" min="0" max="127" value="127" required>
+                                </div>
+                            </div>
+
                             {{-- Sound Style --}}
                             <div class="space-y-2">
                                 <label class="block text-sm font-medium text-gray-700">Sound Style</label>
@@ -140,13 +158,12 @@
                             {{-- Duration --}}
                             <div class="space-y-2">
                                 <label class="block text-sm font-medium text-gray-700">Duration</label>
-                                <select name="duration" class="w-full border-gray-300 rounded-md shadow-sm"
+                                <select name="generation_length" class="w-full border-gray-300 rounded-md shadow-sm"
                                         onchange="updateGenerationLength(this.value)">
-                                    <option value="30">30 seconds (1 credit)</option>
-                                    <option value="60">60 seconds (2 credits)</option>
-                                    <option value="120">120 seconds (4 credits)</option>
+                                    <option value="100">100 notes (1 credit)</option>
+                                    <option value="200">200 notes (2 credits)</option>
+                                    <option value="300">300 notes (4 credits)</option>
                                 </select>
-                                <input type="hidden" name="generation_length" value="240">
                             </div>
 
                             <button type="submit"
