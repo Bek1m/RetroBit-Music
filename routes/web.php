@@ -28,6 +28,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/generate-music', [MusicGenerationController::class, 'generate'])->name('music.generate');
         Route::get('/generations/{generation}/download', [MusicGenerationController::class, 'download'])->name('generations.download');
         Route::get('/generations/{generation}/play', [MusicGenerationController::class, 'play'])->name('generations.play');
+        Route::delete('/generations/{generation}', [MusicGenerationController::class, 'destroy'])->name('generations.destroy');
+        Route::get('/generations/{generation}/download', [MusicGenerationController::class, 'download'])->name('generations.download');
+        Route::get('/generations/{generation}/play', [MusicGenerationController::class, 'play'])->name('generations.play');
     });
 
     // Billing Routes

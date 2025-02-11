@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Generation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Process;
 
 class MusicGenerationController extends Controller
@@ -13,7 +12,6 @@ class MusicGenerationController extends Controller
     public function generate(Request $request)
     {
         set_time_limit(3600);
-        // Validate the request
         $validated = $request->validate([
             'valence' => 'required|numeric|between:-1,1',
             'arousal' => 'required|numeric|between:-1,1',
@@ -26,7 +24,6 @@ class MusicGenerationController extends Controller
         ]);
 
         try {
-            // Create generation record
             $generation = Generation::create([
                 'user_id' => auth()->id(),
                 'style' => $validated['soundfont'],
@@ -53,35 +50,24 @@ class MusicGenerationController extends Controller
                 '--soundfont', $validated['soundfont']
             ];
 
-            // Execute the Python command
             $process = new Process($command);
             $process->setTimeout(3600);
             $process->run();
              
-
-            // Wait for the process to finish and get the output
             $process->wait();
-
-                    // Capture the output
             $output = $process->getOutput();
 
-            // Decode the JSON output
             $jsonOutput = json_decode($output, true);
 
-            // Check if the JSON output is valid
             if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \Exception('Invalid JSON output from Python script: ' . $output);
             }
-
-            // Check if the process was successful
             if (!$process->isSuccessful()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to generate music: '
                 ], 500);
             }
-
-            // Update generation status to completed
             $generation->update(['status' => 'completed']);
 
             return response()->json([
@@ -106,32 +92,37 @@ class MusicGenerationController extends Controller
     public function download(Generation $generation)
     {
         if ($generation->user_id !== auth()->id()) {
-            abort(403);
+            abort(403, 'Unauthorized action.');
         }
-
-        if (!Storage::disk('public')->exists('generations/' . $generation->file_path)) {
-            abort(404);
+        $filePath = '/Users/drinkurtishi/Desktop/AI-project/music_generator/data/generated_music_mp3/' . $generation->output_name;
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found.');
         }
-
-        return Storage::disk('public')->download(
-            'generations/' . $generation->file_path,
-            $generation->title . '.mp3'
-        );
+        return response()->download($filePath, $generation->output_name);
     }
 
     public function play(Generation $generation)
     {
         if ($generation->user_id !== auth()->id()) {
-            abort(403);
+            abort(403, 'Unauthorized action.');
         }
-
-        if (!Storage::disk('public')->exists('generations/' . $generation->file_path)) {
-            abort(404);
+        $filePath = '/Users/drinkurtishi/Desktop/AI-project/music_generator/data/generated_music_mp3/'.$generation->output_name;
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found.');
         }
+        return response()->file($filePath, ['Content-Type' => 'audio/mpeg']);
+    }
 
-        return response()->file(
-            Storage::disk('public')->path('generations/' . $generation->file_path),
-            ['Content-Type' => 'audio/mpeg']
-        );
+    public function destroy(Generation $generation)
+    {
+        if ($generation->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+        $filePath = '/Users/drinkurtishi/Desktop/AI-project/music_generator/data/generated_music_mp3/' . $generation->output_name;
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+        $generation->delete();
+        return response()->json(['message' => 'Generation deleted successfully.'], 200);
     }
 }
