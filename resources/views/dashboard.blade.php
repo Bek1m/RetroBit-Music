@@ -68,7 +68,7 @@
     <div class="p-8">
         <div class="flex gap-8">
             {{-- Left Side - Music Parameters --}}
-            <div class="w-2/3">
+            <div class="w-full max-w-3xl mx-auto">
                 <form id="generationForm">
                     @csrf
                     <div class="bg-white rounded-lg shadow-md p-6">
@@ -120,7 +120,7 @@
                                 </div>
                                 <input type="range" name="tempo"
                                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                                       min="60" max="180" value="120"
+                                       min="0" max="200" value="100"
                                        oninput="updateSliderValue('tempoValue', this.value, false)">
                             </div>
 
@@ -138,31 +138,80 @@
 
                             {{-- Sound Style --}}
                             <div class="space-y-2">
-                                <label class="block text-sm font-medium text-gray-700">Sound Style</label>
-                                <div class="grid grid-cols-3 gap-4">
-                                    @foreach(['contra' => 'Contra', 'nintendo' => 'Nintendo', 'violin' => 'Violin'] as $value => $label)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="soundfont" value="{{ $value }}"
-                                                   class="peer hidden" {{ $value === 'contra' ? 'checked' : '' }}>
-                                            <div class="p-4 border border-gray-200 rounded-lg text-center
-                                                            peer-checked:border-purple-500 peer-checked:bg-purple-50 hover:bg-gray-50">
-                                                <i class="fas {{ $value === 'violin' ? 'fa-music' : 'fa-gamepad' }}
-                                                          text-xl {{ $value === 'contra' ? 'text-purple-500' : 'text-gray-400' }}"></i>
-                                                <p class="mt-1 text-sm font-medium text-gray-700">{{ $label }}</p>
-                                            </div>
-                                        </label>
-                                    @endforeach
-                                </div>
+                            <label class="block text-sm font-medium text-gray-700">Sound Style</label>
+                            <div class="grid grid-cols-2 gap-6">
+                                @foreach([
+                                    'contra' => ['name' => 'Contra', 'icon' => 'fa-gamepad'],
+                                    'nintendo' => ['name' => 'Nintendo', 'icon' => 'fa-ghost'],
+                                    'violin' => ['name' => 'Violin', 'icon' => 'fa-music'],
+                                    'piano' => ['name' => 'Piano', 'icon' => 'fa-keyboard']
+                                ] as $value => $details)
+                                    <label class="cursor-pointer sound-style-option">
+                                        <input type="radio" name="soundfont" value="{{ $value }}"
+                                            class="hidden" {{ $value === 'contra' ? 'checked' : '' }}
+                                            onchange="updateSoundStyle(this)">
+                                        <div class="p-6 border border-gray-200 rounded-lg text-center hover:bg-gray-50 style-container">
+                                            <i class="fas {{ $details['icon'] }} text-3xl style-icon {{ $value === 'contra' ? 'text-purple-500' : 'text-gray-400' }}"></i>
+                                            <p class="mt-2 text-lg font-medium style-text {{ $value === 'contra' ? 'text-purple-500' : 'text-gray-700' }}">
+                                                {{ $details['name'] }}</p>
+                                        </div>
+                                    </label>
+                                @endforeach
                             </div>
+                        </div>
+
+                            <script>
+                            function updateSoundStyle(radio) {
+                                // Reset all styles first
+                                document.querySelectorAll('.sound-style-option').forEach(option => {
+                                    const container = option.querySelector('.style-container');
+                                    const icon = option.querySelector('.style-icon');
+                                    const text = option.querySelector('.style-text');
+                                    
+                                    container.classList.remove('border-purple-500', 'bg-purple-50');
+                                    container.classList.add('border-gray-200');
+                                    icon.classList.remove('text-purple-500');
+                                    icon.classList.add('text-gray-400');
+                                    text.classList.remove('text-purple-500');
+                                    text.classList.add('text-gray-700');
+                                });
+
+                                // Apply styles to selected option
+                                if (radio.checked) {
+                                    const label = radio.closest('.sound-style-option');
+                                    const container = label.querySelector('.style-container');
+                                    const icon = label.querySelector('.style-icon');
+                                    const text = label.querySelector('.style-text');
+
+                                    container.classList.remove('border-gray-200');
+                                    container.classList.add('border-purple-500', 'bg-purple-50');
+                                    icon.classList.remove('text-gray-400');
+                                    icon.classList.add('text-purple-500');
+                                    text.classList.remove('text-gray-700');
+                                    text.classList.add('text-purple-500');
+                                }
+                            }
+
+                            // Initialize the styles for the default selected option
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const checkedRadio = document.querySelector('input[name="soundfont"]:checked');
+                                if (checkedRadio) {
+                                    updateSoundStyle(checkedRadio);
+                                }
+                            });
+                            </script>
 
                             {{-- Duration --}}
                             <div class="space-y-2">
                                 <label class="block text-sm font-medium text-gray-700">Duration</label>
                                 <select name="generation_length" class="w-full border-gray-300 rounded-md shadow-sm"
                                         onchange="updateGenerationLength(this.value)">
-                                    <option value="100">100 notes (1 credit)</option>
-                                    <option value="200">200 notes (2 credits)</option>
-                                    <option value="300">300 notes (4 credits)</option>
+                                    <option value="50">50 notes (1 credit)</option>
+                                    <option value="100">100 notes (2 credits)</option>
+                                    <option value="150">150 notes (3 credits)</option>
+                                    <option value="200">200 notes (4 credit)</option>
+                                    <option value="250">250 notes (5 credits)</option>
+                                    <option value="300">300 notes (6 credits)</option>
                                 </select>
                             </div>
 
@@ -175,44 +224,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-
-            {{-- Right Side - Recent Generations --}}
-            <div class="w-1/3">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold text-gray-700 mb-6">Recent Generations</h2>
-                    <div class="space-y-4">
-                        @forelse($recentGenerations ?? [] as $generation)
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="font-medium text-gray-700">{{ $generation->title }}</span>
-                                    <span class="text-xs {{ $generation->status === 'completed' ? 'text-green-600 bg-green-100' : 'text-yellow-600 bg-yellow-100' }} px-2 py-1 rounded-full">
-                                            {{ ucfirst($generation->status) }}
-                                        </span>
-                                </div>
-                                <div class="flex items-center justify-between text-sm text-gray-500">
-                                    <span>{{ $generation->duration }}s • {{ ucfirst($generation->style) }}</span>
-                                    <div class="flex space-x-2">
-                                        @if($generation->status === 'completed')
-                                            <button onclick="playGeneration('{{ $generation->id }}')" class="hover:text-purple-600">
-                                                <i class="fas fa-play"></i>
-                                            </button>
-                                            <a href="{{ route('generations.download', $generation) }}" class="hover:text-purple-600">
-                                                <i class="fas fa-download"></i>
-                                            </a>
-                                        @else
-                                            <div class="animate-spin text-purple-600">
-                                                <i class="fas fa-spinner"></i>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <p class="text-gray-600 text-center py-4">No generations yet</p>
-                        @endforelse
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -297,7 +308,7 @@
             if (data.success) {
                 Swal.fire({
                     title: 'Success!',
-                    text: 'Your music is being generated.',
+                    text: 'Your music has been generated.',
                     icon: 'success',
                     confirmButtonColor: '#9333ea'
                 }).then(() => {

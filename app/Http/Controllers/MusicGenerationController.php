@@ -12,13 +12,14 @@ class MusicGenerationController extends Controller
     
     public function generate(Request $request)
     {
+        set_time_limit(3600);
         // Validate the request
         $validated = $request->validate([
             'valence' => 'required|numeric|between:-1,1',
             'arousal' => 'required|numeric|between:-1,1',
-            'tempo' => 'required|integer|between:60,180',
-            'soundfont' => 'required|in:contra,nintendo,violin',
-            'generation_length' => 'required|integer|min:100',
+            'tempo' => 'required|integer|between:0,200',
+            'soundfont' => 'required|in:contra,nintendo,violin,piano',
+            'generation_length' => 'required|integer|min:50',
             'output_name' => 'required|string',
             'velocity_min' => 'required|integer|between:0,127',
             'velocity_max' => 'required|integer|between:0,127',
@@ -54,7 +55,9 @@ class MusicGenerationController extends Controller
 
             // Execute the Python command
             $process = new Process($command);
+            $process->setTimeout(3600);
             $process->run();
+             
 
             // Wait for the process to finish and get the output
             $process->wait();
